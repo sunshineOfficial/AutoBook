@@ -40,7 +40,7 @@ async def _send_seats(message: Message, user_id: int, edit: bool = False) -> Non
             lines.append(f"{icon} Место {num}: {name}")
 
     text = "\n".join(lines)
-    kb = seats_keyboard(seats, user_id)
+    kb = seats_keyboard(seats, user_id, is_admin=(user_id == ADMIN_ID))
 
     if edit:
         try:
