@@ -14,8 +14,28 @@ class RefreshCallback(CallbackData, prefix="refresh"):
     pass
 
 
+class AdminSeatCallback(CallbackData, prefix="admin_seat"):
+    seat_number: int
+
+
+class KickConfirmCallback(CallbackData, prefix="kick_confirm"):
+    seat_number: int
+
+
+def kick_confirm_keyboard(seat_number: int, username: str | None) -> InlineKeyboardBuilder:
+    builder = InlineKeyboardBuilder()
+    name = f"@{username}" if username else f"seat {seat_number}"
+    builder.button(
+        text=f"✅ Kick {name} from seat {seat_number}",
+        callback_data=KickConfirmCallback(seat_number=seat_number),
+    )
+    builder.button(text="❌ Cancel", callback_data=RefreshCallback())
+    builder.adjust(1)
+    return builder
+
+
 def seats_keyboard(
-    seats: list[dict], user_id: int
+    seats: list[dict], user_id: int, is_admin: bool = False
 ) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
 
@@ -27,20 +47,23 @@ def seats_keyboard(
         icon = seat_icons.get(num, str(num))
         if seat["user_id"] is None:
             label = f"{icon} Место {num}: Свободно"
+            callback = RefreshCallback()
         else:
             name = f"@{seat['username']}" if seat["username"] else f"Пользователь {seat['user_id']}"
             label = f"{icon} Место {num}: {name}"
             if seat["user_id"] == user_id:
                 user_has_booking = True
-        builder.button(text=label, callback_data=RefreshCallback())
+            callback = AdminSeatCallback(seat_number=num) if is_admin else RefreshCallback()
+        builder.button(text=label, callback_data=callback)
 
     builder.adjust(1)  # One seat per row
 
     action_builder = InlineKeyboardBuilder()
-    if user_has_booking:
-        action_builder.button(text="Отменить бронирование", callback_data=CancelCallback())
-    else:
-        action_builder.button(text="Забронировать место", callback_data=BookCallback())
+    if not is_admin:
+        if user_has_booking:
+            action_builder.button(text="Отменить бронирование", callback_data=CancelCallback())
+        else:
+            action_builder.button(text="Забронировать место", callback_data=BookCallback())
     action_builder.button(text="Обновить", callback_data=RefreshCallback())
     action_builder.adjust(2)
 
