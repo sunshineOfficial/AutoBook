@@ -1,12 +1,13 @@
 import pytest
 from unittest.mock import patch
 
+import bot.db as db_module
+
 
 @pytest.fixture
 async def tmp_db(tmp_path):
     db_file = str(tmp_path / "test.db")
     with patch("bot.db.DB_PATH", db_file):
-        import bot.db as db_module
         await db_module.init_db()
         yield db_module
 
