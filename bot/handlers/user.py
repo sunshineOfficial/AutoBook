@@ -17,7 +17,7 @@ router = Router()
 async def _send_seats(message: Message, user_id: int, edit: bool = False) -> None:
     available = await db.is_car_available()
     if not available:
-        text = "\U0001f6ab Car is not available right now."
+        text = "\U0001f6ab Машина сейчас недоступна."
         if edit:
             await message.edit_text(text, reply_markup=None)
         else:
@@ -28,15 +28,15 @@ async def _send_seats(message: Message, user_id: int, edit: bool = False) -> Non
     free = sum(1 for s in seats if s["user_id"] is None)
 
     seat_icons = {1: "1\ufe0f\u20e3", 2: "2\ufe0f\u20e3", 3: "3\ufe0f\u20e3", 4: "4\ufe0f\u20e3"}
-    lines = [f"\U0001f697 Car Seats ({free} available):\n"]
+    lines = [f"\U0001f697 Места в машине ({free} свободно):\n"]
     for seat in seats:
         num = seat["number"]
         icon = seat_icons.get(num, str(num))
         if seat["user_id"] is None:
-            lines.append(f"{icon} Seat {num}: Free")
+            lines.append(f"{icon} Место {num}: Свободно")
         else:
-            name = f"@{seat['username']}" if seat["username"] else f"User {seat['user_id']}"
-            lines.append(f"{icon} Seat {num}: {name}")
+            name = f"@{seat['username']}" if seat["username"] else f"Пользователь {seat['user_id']}"
+            lines.append(f"{icon} Место {num}: {name}")
 
     text = "\n".join(lines)
     kb = seats_keyboard(seats, user_id)
@@ -53,9 +53,9 @@ async def _send_seats(message: Message, user_id: int, edit: bool = False) -> Non
 @router.message(CommandStart())
 async def cmd_start(message: Message) -> None:
     await message.answer(
-        "\U0001f44b Welcome to AutoBook!\n\n"
-        "I help you check and reserve car seats.\n\n"
-        "Use /seats to see available seats and book one."
+        "\U0001f44b Добро пожаловать в AutoBook!\n\n"
+        "Я помогаю проверять и бронировать места в машине.\n\n"
+        "Используйте /seats, чтобы увидеть свободные места и забронировать одно."
     )
 
 
@@ -68,7 +68,7 @@ async def cmd_seats(message: Message) -> None:
 async def on_book(callback: CallbackQuery) -> None:
     available = await db.is_car_available()
     if not available:
-        await callback.answer("\U0001f6ab Car is not available right now.", show_alert=True)
+        await callback.answer("\U0001f6ab Машина сейчас недоступна.", show_alert=True)
         return
 
     user_id = callback.from_user.id
@@ -79,12 +79,12 @@ async def on_book(callback: CallbackQuery) -> None:
         seats = await db.get_all_seats()
         user_booked = any(s["user_id"] == user_id for s in seats)
         if user_booked:
-            await callback.answer("You already have a booking!", show_alert=True)
+            await callback.answer("У вас уже есть бронирование!", show_alert=True)
         else:
-            await callback.answer("No free seats available.", show_alert=True)
+            await callback.answer("Нет свободных мест.", show_alert=True)
         return
 
-    await callback.answer(f"Booked seat {seat}!", show_alert=True)
+    await callback.answer(f"Место {seat} забронировано!", show_alert=True)
     await _send_seats(callback.message, user_id=user_id, edit=True)
 
 
@@ -93,9 +93,9 @@ async def on_cancel(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
     removed = await db.cancel_booking(user_id)
     if removed:
-        await callback.answer("Booking cancelled!", show_alert=True)
+        await callback.answer("Бронирование отменено!", show_alert=True)
     else:
-        await callback.answer("You don't have a booking.", show_alert=True)
+        await callback.answer("У вас нет бронирования.", show_alert=True)
     await _send_seats(callback.message, user_id=user_id, edit=True)
 
 
