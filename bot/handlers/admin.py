@@ -66,15 +66,15 @@ async def on_admin_seat(callback: CallbackQuery, callback_data: AdminSeatCallbac
         await _send_seats(callback.message, user_id=ADMIN_ID, edit=True)
         return
     confirm_kb = kick_confirm_keyboard(callback_data.seat_number, seat["username"])
-    await callback.message.edit_reply_markup(reply_markup=confirm_kb.as_markup())
     await callback.answer()
+    await callback.message.edit_reply_markup(reply_markup=confirm_kb.as_markup())
 
 
 @router.callback_query(KickConfirmCallback.filter())
 async def on_kick_confirm(callback: CallbackQuery, callback_data: KickConfirmCallback) -> None:
     evicted_user_id = await db.kick_user_by_seat(callback_data.seat_number)
     if evicted_user_id is not None:
-        await callback.answer("✅ Kicked", show_alert=True)
+        await callback.answer("✅ Кик выполнен", show_alert=True)
     else:
-        await callback.answer("Seat already free.", show_alert=True)
+        await callback.answer("Место уже свободно.", show_alert=True)
     await _send_seats(callback.message, user_id=ADMIN_ID, edit=True)
