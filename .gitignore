@@ -8,3 +8,5 @@ build/
 *.db
 .venv/
 .uv/
+bot.pid
+bot.log
