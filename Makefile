@@ -13,13 +13,13 @@ rebuild:
 install-service:
 	cp autobook.service /etc/systemd/system/autobook.service
 	systemctl daemon-reload
-	systemctl enable autobook
-	systemctl start autobook
+	systemctl enable --now autobook
 	@echo "Service installed and started."
 
 deploy:
 	git pull
 	uv sync
+	cp autobook.service /etc/systemd/system/autobook.service
 	systemctl daemon-reload
 	systemctl restart autobook
 
