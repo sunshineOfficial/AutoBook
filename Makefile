@@ -1,4 +1,4 @@
-.PHONY: run install rebuild clean deploy
+.PHONY: run install rebuild clean deploy logs install-service
 
 run:
 	uv run python -m bot.main
@@ -10,12 +10,21 @@ rebuild:
 	rm -rf .venv
 	uv sync
 
+install-service:
+	cp autobook.service /etc/systemd/system/autobook.service
+	systemctl daemon-reload
+	systemctl enable autobook
+	systemctl start autobook
+	@echo "Service installed and started."
+
 deploy:
 	git pull
 	uv sync
-	@if [ -f bot.pid ]; then kill $$(cat bot.pid) 2>/dev/null || true; rm -f bot.pid; fi
-	nohup uv run python -m bot.main >> bot.log 2>&1 & echo $$! > bot.pid
-	@echo "Bot started. PID: $$(cat bot.pid)"
+	systemctl daemon-reload
+	systemctl restart autobook
+
+logs:
+	journalctl -u autobook -f
 
 clean:
 	find . -type d -name __pycache__ -exec rm -rf {} +
