@@ -108,7 +108,6 @@ async def on_cancel(callback: CallbackQuery) -> None:
             pass  # Notification failure must not interrupt the user flow
     else:
         await callback.answer("У вас нет бронирования.", show_alert=True)
-        return
     await _send_seats(callback.message, user_id=user_id, edit=True)
 
 

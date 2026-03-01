@@ -71,4 +71,4 @@ def test_kick_confirm_keyboard_without_username():
     kb = kick_confirm_keyboard(seat_number=2, username=None)
     markup = kb.as_markup()
     confirm_btn = markup.inline_keyboard[0][0]
-    assert "seat 2" in confirm_btn.text
+    assert "место 2" in confirm_btn.text

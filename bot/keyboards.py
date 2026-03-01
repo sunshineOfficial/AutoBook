@@ -24,12 +24,12 @@ class KickConfirmCallback(CallbackData, prefix="kick_confirm"):
 
 def kick_confirm_keyboard(seat_number: int, username: str | None) -> InlineKeyboardBuilder:
     builder = InlineKeyboardBuilder()
-    name = f"@{username}" if username else f"seat {seat_number}"
+    name = f"@{username}" if username else f"место {seat_number}"
     builder.button(
-        text=f"✅ Kick {name} from seat {seat_number}",
+        text=f"✅ Выгнать {name} с места {seat_number}",
         callback_data=KickConfirmCallback(seat_number=seat_number),
     )
-    builder.button(text="❌ Cancel", callback_data=RefreshCallback())
+    builder.button(text="❌ Отмена", callback_data=RefreshCallback())
     builder.adjust(1)
     return builder
 
