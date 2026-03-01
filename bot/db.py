@@ -99,6 +99,21 @@ async def kick_user(user_id: int) -> int | None:
     return await cancel_booking(user_id)
 
 
+async def kick_user_by_seat(seat_number: int) -> int | None:
+    async with _connect() as db:
+        db.row_factory = aiosqlite.Row
+        cursor = await db.execute(
+            "SELECT user_id FROM bookings WHERE seat_number = ?", (seat_number,)
+        )
+        row = await cursor.fetchone()
+        if row is None:
+            return None
+        user_id = row["user_id"]
+        await db.execute("DELETE FROM bookings WHERE seat_number = ?", (seat_number,))
+        await db.commit()
+        return user_id
+
+
 async def is_car_available() -> bool:
     async with _connect() as db:
         db.row_factory = aiosqlite.Row
