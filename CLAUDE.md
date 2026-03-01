@@ -58,6 +58,10 @@ When the admin calls `/seats`, `_send_seats` detects `user_id == ADMIN_ID` and p
 2. Admin confirms → `on_kick_confirm` calls `db.kick_user_by_seat(seat_number)`, shows an alert, re-renders the seat list
 3. Admin cancels → `RefreshCallback` fires, seat list refreshes unchanged
 
+## Localisation
+
+All user-facing strings are in Russian. Do not introduce English text in bot messages, button labels, or alerts.
+
 ## Configuration
 
 Copy `.env.example` to `.env` and set:
