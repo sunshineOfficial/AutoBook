@@ -53,17 +53,17 @@ def seats_keyboard(
             label = f"{icon} Место {num}: {name}"
             if seat["user_id"] == user_id:
                 user_has_booking = True
-            callback = AdminSeatCallback(seat_number=num) if is_admin else RefreshCallback()
+            is_other_user = is_admin and seat["user_id"] != user_id
+            callback = AdminSeatCallback(seat_number=num) if is_other_user else RefreshCallback()
         builder.button(text=label, callback_data=callback)
 
     builder.adjust(1)  # One seat per row
 
     action_builder = InlineKeyboardBuilder()
-    if not is_admin:
-        if user_has_booking:
-            action_builder.button(text="Отменить бронирование", callback_data=CancelCallback())
-        else:
-            action_builder.button(text="Забронировать место", callback_data=BookCallback())
+    if user_has_booking:
+        action_builder.button(text="Отменить бронирование", callback_data=CancelCallback())
+    else:
+        action_builder.button(text="Забронировать место", callback_data=BookCallback())
     action_builder.button(text="Обновить", callback_data=RefreshCallback())
     action_builder.adjust(2)
 

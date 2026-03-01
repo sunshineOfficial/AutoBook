@@ -49,12 +49,20 @@ def test_regular_user_with_booking_sees_cancel_button():
     assert any("Отменить" in label for label in labels)
 
 
-def test_admin_does_not_see_book_or_cancel_buttons():
+def test_admin_sees_cancel_button_for_own_booking():
     seats = make_seats(booked_user_id=42)
     kb = seats_keyboard(seats, user_id=42, is_admin=True)
     markup = kb.as_markup()
     all_labels = [btn.text for row in markup.inline_keyboard for btn in row]
-    assert not any("Забронировать" in label or "Отменить" in label for label in all_labels)
+    assert any("Отменить" in label for label in all_labels)
+
+
+def test_admin_sees_book_button_when_no_booking():
+    seats = make_seats(booked_user_id=99)
+    kb = seats_keyboard(seats, user_id=42, is_admin=True)
+    markup = kb.as_markup()
+    all_labels = [btn.text for row in markup.inline_keyboard for btn in row]
+    assert any("Забронировать" in label for label in all_labels)
 
 
 def test_kick_confirm_keyboard_with_username():
