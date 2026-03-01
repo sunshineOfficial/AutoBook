@@ -97,11 +97,18 @@ async def on_book(callback: CallbackQuery) -> None:
 @router.callback_query(CancelCallback.filter())
 async def on_cancel(callback: CallbackQuery) -> None:
     user_id = callback.from_user.id
-    removed = await db.cancel_booking(user_id)
-    if removed:
+    freed_seat = await db.cancel_booking(user_id)
+    if freed_seat is not None:
         await callback.answer("Бронирование отменено!", show_alert=True)
+        username = callback.from_user.username
+        name = f"@{username}" if username else f"Пользователь {user_id}"
+        try:
+            await callback.bot.send_message(ADMIN_ID, f"❌ {name} отменил место {freed_seat}")
+        except Exception:
+            pass  # Notification failure must not interrupt the user flow
     else:
         await callback.answer("У вас нет бронирования.", show_alert=True)
+        return
     await _send_seats(callback.message, user_id=user_id, edit=True)
 
 

@@ -74,13 +74,19 @@ async def book_seat(user_id: int, username: str | None) -> int | None:
         return None
 
 
-async def cancel_booking(user_id: int) -> bool:
+async def cancel_booking(user_id: int) -> int | None:
     async with _connect() as db:
+        db.row_factory = aiosqlite.Row
         cursor = await db.execute(
-            "DELETE FROM bookings WHERE user_id = ?", (user_id,)
+            "SELECT seat_number FROM bookings WHERE user_id = ?", (user_id,)
         )
+        row = await cursor.fetchone()
+        if row is None:
+            return None
+        seat_number = row["seat_number"]
+        await db.execute("DELETE FROM bookings WHERE user_id = ?", (user_id,))
         await db.commit()
-        return cursor.rowcount > 0
+        return seat_number
 
 
 async def clear_all_bookings() -> None:
@@ -89,7 +95,7 @@ async def clear_all_bookings() -> None:
         await db.commit()
 
 
-async def kick_user(user_id: int) -> bool:
+async def kick_user(user_id: int) -> int | None:
     return await cancel_booking(user_id)
 
 
