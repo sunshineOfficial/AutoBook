@@ -4,6 +4,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 
 from bot import db
+from bot.config import ADMIN_ID
 from bot.keyboards import (
     BookCallback,
     CancelCallback,
@@ -85,6 +86,11 @@ async def on_book(callback: CallbackQuery) -> None:
         return
 
     await callback.answer(f"Место {seat} забронировано!", show_alert=True)
+    name = f"@{username}" if username else f"Пользователь {user_id}"
+    try:
+        await callback.bot.send_message(ADMIN_ID, f"✅ {name} забронировал место {seat}")
+    except Exception:
+        pass  # Notification failure must not interrupt the user flow
     await _send_seats(callback.message, user_id=user_id, edit=True)
 
 
